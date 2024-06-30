@@ -6,6 +6,9 @@ from athenaQuery import SQLQuery, GetTables
 from colours import colours
 from tools import Tools
 
+# modify this as required. Its likely that you will just need to change the region part
+DATABASE_NAME = 'amazon_security_lake_glue_db_ap_southeast_2'
+
 # this uses a cli based profile. Modify so you have a valid session as required. 
 session = boto3.session.Session(profile_name='analyst', region_name='ap-southeast-2')
 
@@ -19,8 +22,8 @@ tools = Tools()
 message_list = []
 
 def converse(message_list):
-    system = """
-    - Always include the the database name 'amazon_security_lake_glue_db_ap_southeast_2' in sql querys
+    system = f"""
+    - Always include the the database name '{DATABASE_NAME}' in sql querys
     - Use the get_tables tool to get a list of tables in the database
     - Use the sql_db_query tool to query the database
     - Do not use backtick (`) in the SQL Query. 
@@ -30,6 +33,7 @@ def converse(message_list):
     - Avoid using aliases(`as` clause) in the SQL Query.
     - When querying column of `string` type, use single quotes ' in SQL Query for casting to string.
     """
+    
 
     response = bedrock.converse(
         modelId="anthropic.claude-3-sonnet-20240229-v1:0",
@@ -96,7 +100,9 @@ print('\n\nMe: I will ask Claude some questions to get started, so it can collec
 message_list.append({
     "role": "user",
     "content": [
-        { "text": "Hey Claude, what Tables are in the Database named 'amazon_security_lake_glue_db_ap_southeast_2'?" } 
+        { 
+            "text": f"Hey Claude, what Tables are in the Database named {DATABASE_NAME}?. After discovering the tables, get the schema for each table by running a query like 'SELECT * FROM tablename LIMIT 3'. Include the database name in all querys" 
+         } 
     ],
 })
 print(colours.ME + 'Me:',message_list[0]['content'][0]['text'])
@@ -143,3 +149,5 @@ while True:
         ],
     })
     
+
+
